@@ -8,3 +8,10 @@ dependencies = [
     "openai>=3.51.0",
     "pydantic-settings>=2.16.3",
 ]
+[tool.uv]
+constraint-dependencies = [
+    "uuid-utils==0.17.0",
+    "jiter<0.19",
+    "ormsgpack<1.13.1",
+    "regex<2026.11.9",
+]

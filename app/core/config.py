@@ -2,6 +2,7 @@ from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 from typing import Literal
+from pydantic import Field, SecretStr
 
 
 class Settings(BaseSettings):
@@ -15,6 +16,10 @@ class Settings(BaseSettings):
     fallback_model: str = "gpt-5-mini"
     request_timeout_seconds: float = 30.0
     max_retries: int = 2
+    guard_model: str = "meta-llama/llama-prompt-guard-2-86m"
+    injection_threshold: float = Field(default=0.5, ge=0, le=1)
+    guard_timeout_seconds: float = 5.0
+    guard_fail_closed: bool = True
 
 
 @lru_cache
