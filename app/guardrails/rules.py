@@ -1,6 +1,5 @@
 import re
 
-from app.guardrails.models import Decision, GuardResult
 
 # Rule names go in the audit log. The user only ever sees a generic message.
 INJECTION_RULES: list[tuple[str, re.Pattern[str]]] = [
@@ -32,13 +31,5 @@ INJECTION_RULES: list[tuple[str, re.Pattern[str]]] = [
 ]
 
 
-def check_rules(text: str) -> GuardResult:
-    for name, pattern in INJECTION_RULES:
-        if pattern.search(text):
-            return GuardResult(
-                decision=Decision.BLOCK,
-                layer="rules",
-                reason=f"matched rule: {name}",
-            )
-
-    return GuardResult(decision=Decision.ALLOW, layer="rules", reason="no rule matched")
+def find_matching_rules(text: str) -> list[str]:
+    return [name for name, pattern in INJECTION_RULES if pattern.search(text)]

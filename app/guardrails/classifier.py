@@ -6,37 +6,27 @@ from openai import APIError, OpenAI
 from app.core.config import get_settings
 from app.core.llm_client import GROQ_BASE_URL
 from app.guardrails.chunking import split_into_chunks
-from app.guardrails.models import Decision, GuardResult
 
 logger = logging.getLogger(__name__)
 
 
-def classify_text(text: str) -> GuardResult:
-    settings = get_settings()
+class ClassifierUnavailableError(Exception):
+    """Raised when the classifier cannot produce a usable score."""
+
+
+def score_text(text: str, stop_at: float = 1.0) -> float:
     highest_score = 0.0
 
     try:
         for chunk in split_into_chunks(text):
             highest_score = max(highest_score, _score_chunk(chunk))
-            if highest_score >= settings.injection_threshold:
+            if highest_score >= stop_at:
                 break
     except (APIError, ValueError) as exc:
-        return _classifier_unavailable(exc)
+        logger.warning("Classifier unavailable (%s)", type(exc).__name__)
+        raise ClassifierUnavailableError from exc
 
-    if highest_score >= settings.injection_threshold:
-        return GuardResult(
-            decision=Decision.BLOCK,
-            layer="classifier",
-            reason="prompt attack detected",
-            score=highest_score,
-        )
-
-    return GuardResult(
-        decision=Decision.ALLOW,
-        layer="classifier",
-        reason="score below threshold",
-        score=highest_score,
-    )
+    return highest_score
 
 
 def _score_chunk(chunk: str) -> float:
@@ -46,22 +36,6 @@ def _score_chunk(chunk: str) -> float:
     )
     content = response.choices[0].message.content or ""
     return float(content)
-
-
-def _classifier_unavailable(exc: Exception) -> GuardResult:
-    logger.warning("Classifier unavailable (%s)", type(exc).__name__)
-
-    if get_settings().guard_fail_closed:
-        return GuardResult(
-            decision=Decision.BLOCK,
-            layer="error",
-            reason="classifier unavailable, failing closed",
-        )
-    return GuardResult(
-        decision=Decision.ALLOW,
-        layer="error",
-        reason="classifier unavailable, failing open",
-    )
 
 
 @lru_cache

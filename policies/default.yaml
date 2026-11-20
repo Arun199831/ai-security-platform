@@ -1,0 +1,13 @@
+version: 1
+name: default
+
+input:
+  max_chars: 4000
+  classifier:
+    block_threshold: 0.9
+    flag_threshold: 0.5
+    on_failure: block
+  rules:
+    ignore_instructions: block
+    reveal_system_prompt: block
+    role_override: block

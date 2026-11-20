@@ -5,6 +5,7 @@ from enum import StrEnum
 class Decision(StrEnum):
     ALLOW = "allow"
     BLOCK = "block"
+    FLAG = "flag"
 
 
 @dataclass(frozen=True)
@@ -16,4 +17,4 @@ class GuardResult:
 
     @property
     def allowed(self) -> bool:
-        return self.decision == Decision.ALLOW
+        return self.decision != Decision.BLOCK
