@@ -1,8 +1,8 @@
-from pydantic import SecretStr
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 from typing import Literal
+
 from pydantic import SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     guard_model: str = "meta-llama/llama-prompt-guard-2-86m"
     guard_timeout_seconds: float = 5.0
     policy_path: str = "policies/default.yaml"
+    output_guard_model: str = "openai/gpt-oss-safeguard-20b"
+    output_guard_timeout_seconds: float = 10.0
 
 
 @lru_cache

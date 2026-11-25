@@ -11,3 +11,17 @@ input:
     ignore_instructions: block
     reveal_system_prompt: block
     role_override: block
+
+output:
+  max_chars: 20000
+  secrets: block
+  marker_leak: block
+  classifier:
+    on_failure: block
+    safety_policy_file: policies/output_safety.md
+    categories:
+      harmful_instructions: block
+      jailbreak_compliance: block
+      hate_harassment: block
+      self_harm: block
+      personal_data: flag

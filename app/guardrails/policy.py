@@ -38,10 +38,32 @@ class InputPolicy(StrictModel):
     rules: RulesPolicy
 
 
+class OutputCategoriesPolicy(StrictModel):
+    harmful_instructions: RuleAction
+    jailbreak_compliance: RuleAction
+    hate_harassment: RuleAction
+    self_harm: RuleAction
+    personal_data: RuleAction
+
+
+class OutputClassifierPolicy(StrictModel):
+    on_failure: Literal["block", "allow"]
+    safety_policy_file: str
+    categories: OutputCategoriesPolicy
+
+
+class OutputPolicy(StrictModel):
+    max_chars: int = Field(gt=0)
+    secrets: RuleAction
+    marker_leak: RuleAction
+    classifier: OutputClassifierPolicy
+
+
 class Policy(StrictModel):
     version: int
     name: str
     input: InputPolicy
+    output: OutputPolicy
 
 
 def load_policy(path: str | Path) -> Policy:
